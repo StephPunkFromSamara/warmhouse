@@ -1,0 +1,76 @@
+ @startuml
+ !include C4_Container.puml
+ Person(user, "Person", "Житель коттеджа получающий услугу умного управления")
+
+ System_Boundary(smartHome, "Smart Home System") {
+
+
+    Container(webApp, "SmartHome Shell SPA", "React", "Общий контейнер, подгружает микрофронтенды")
+
+
+    Container(spaDevices, "Device Manager UI", "React Microfrontend", "Управление устройствами")
+    Container(registryService, "Device Registry Service", "Go", "Управление реестром устройств")
+    ContainerDb(deviceDb, "Устройства", "PostgreSQL", "Хранит зарегистрированные устройства")
+
+    Container(spaDashboard, "Dashboard UI", "React Microfrontend", "Обзор состояния систем")
+    Container(monitoringService, "Monitoring Service", "Go", "Получение показателей и логов")
+    ContainerDb(metricsDb, "Показатели", "PostgreSQL+TimeScaleDB", "Хранит технические показатели устройств")
+
+    Container(spaScenarios, "Scenario Editor UI", "React Microfrontend", "Создание и запуск сценариев")
+    Container(scenario, "Сценарии использования", "Go", "Запускает сценарии")
+    ContainerDb(scenariosDb, "Сценарии", "PostgreSQL", "Хранит пользовательские сценарии")
+
+    Container(spaVideo, "Video Viewer UI", "React Microfrontend", "Просмотр видеопотоков")
+    Container(videoService, "Video Streamer", "RTSP/FFmpeg", "Трансляция видео")
+    Container(fileStorage, "File Storage", "GO", "Постоянное хранилище видеофайлов")
+    ContainerDb(videoMetaDB,"Хранение метаинформации о видео", "PostgreSQL", "Постоянное хранилище видеофайлов")
+
+    Container(spaUser, "User Profile UI", "React Microfrontend", "Профиль и настройки пользователя")
+    Container(registryUserAccount, "User Accounts", "GO", "Авторизует и хранит данных об аккаунте")
+    ContainerDb(userAccountDB, "Данные пользователя", "PostgreSQL", "Хранит об учетных записях")
+
+
+
+
+   ContainerQueue(broker, "Брокер сообщений", "Apache Kafka", "Транслирует метрики датчиков и пакеты видео с камер")
+   }
+
+   System_Ext(smartEquipments , "Оборудование в доме","Системы сбора и контролеров управления")
+
+   Rel(user, webApp, "Посещает страницу управление умным домом")
+
+   Rel(spaVideo, videoService, "Получение потокового видео","RTSP/UDP")
+   Rel(broker, videoService, "Подписка на данные о новых камерах","JSON/KAFKA PROTOCOL")
+   Rel(videoService, fileStorage,"Сохранение данных видео","File API")
+   Rel(videoService,videoMetaDB, "Сохранение данные об устройствах видеослежения и хранения","PGX")
+
+   Rel(spaDashboard, monitoringService, "Просмотр показателей мониторинга","JSON/HTTPS")
+   Rel(broker, monitoringService, "Подписка на метрики и новые устройства","JSON/KAFKA PROTOCOL")
+   Rel(monitoringService, metricsDb, "Пишет метрики запись и агрегация данных","PGX")
+
+   Rel(spaDevices, registryService, "Получение данных об устройствах в разрезе пользователя","JSON/HTTPS")
+   Rel(broker, registryService, "Подписка на данные о новом устройстве и пользователе","JSON/KAFKA PROTOCOL")
+   Rel(registryService,deviceDb,"Пишет данные  об устройствах и состояниях","PGX")
+
+   Rel(spaUser, registryUserAccount, "Авторизация и данные аккаунта","JSON/HTTPS")
+   Rel(registryUserAccount,broker, "Данные об учетных записях", "JSON/KAFKA PROTOCOL")
+   Rel(registryUserAccount, userAccountDB, "Чтение и запись данных пользователя","PGX")
+
+   Rel(spaScenarios, scenario, "Работа со сценариями", "HTTPS")
+   Rel(scenario, scenariosDb, "Записывает и сохраняет сценарии","PGX")
+   Rel(scenario, broker, "Управление устройствами по сценарию","JSON/KAFKA PROTOCOL")
+
+   Rel(smartEquipments, broker, "Стримминг метрик и видео","JSON/KAFKA PROTOCOL")
+   Rel(smartEquipments, videoService, "Стримминг метрик и видео","JSON/HTTPS")
+
+   Rel(webApp, spaDashboard, "UI для просмотра показателей")
+   Rel(webApp, spaVideo, "UI микрофронтенд для просмотра видео")
+   Rel(webApp, spaScenarios, "UI микрофронтенд для настройки сценариев")
+   Rel(webApp, spaDevices, "UI микрофронтенд для Регистрации устройств")
+   Rel(webApp, spaUser, "UI интерфейс профиля пользователя ")
+
+ }
+
+ @enduml
+
+

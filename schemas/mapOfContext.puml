@@ -1,0 +1,24 @@
+
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+System_Boundary(smartHome, "Управление умным домом") {
+
+  Container_Boundary(manageDevices, "Management Devices", "Subdomain", "Управление устройствами") {
+    Component(deviceControl, "Device Control", "Bounded Context", "Управление домашними устройствами: свет, отопление, двери")
+    Component(scenarioDesigner, "Scenario Designer", "Bounded Context", "Настройка сценариев")
+    Component(registryOfDevices, "Registry of Devices", "Bounded Context", "Хранение и саморегистрация устройств")
+  }
+
+  Container_Boundary(observation, "Observation", "Subdomain", "Мониторинг показателей и трансляция видео") {
+    Component(monitoring, "Monitoring", "Bounded Context", "Мониторинг технических показателей")
+    Component(videoCast, "Video Streaming", "Bounded Context", "Трансляция видео")
+  }
+}
+
+
+Rel(deviceControl,registryOfDevices, Получение данных об устройствах)
+Rel(deviceControl,scenarioDesigner, Получение сценариев для исполнения )
+Rel(monitoring,registryOfDevices, Сопоставление данных о технических устройствах мониторинга )
+Rel(videoCast,registryOfDevices, Сопоставление данных об устройства видеонаблюдения )
+@enduml

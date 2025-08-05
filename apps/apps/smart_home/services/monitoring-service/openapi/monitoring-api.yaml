@@ -1,0 +1,105 @@
+openapi: 3.1.0
+info:
+  title: Monitoring Service API
+  version: 1.0.0
+  description: REST API для микросервиса мониторинга (real-time + агрегаты)
+servers:
+  - url: https://monitoring.example.com/api
+    description: Production server
+paths:
+  /stream:
+    get:
+      summary: Подписка на real-time данные
+      parameters:
+        - name: locationId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: metric
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [temperature, light_level, humidity]
+      responses:
+        '200':
+          description: SSE поток
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /dataset:
+    post:
+      summary: Сформировать отчет по метрикам
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [locationId, startTime, endTime, metrics]
+              properties:
+                locationId:
+                  type: string
+                  format: uuid
+                startTime:
+                  type: string
+                  format: date-time
+                endTime:
+                  type: string
+                  format: date-time
+                metrics:
+                  type: array
+                  items:
+                    type: string
+                    enum: [temperature, light_level, humidity]
+      responses:
+        '200':
+          description: Сформированные агрегаты
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timestamp:
+                        type: string
+                        format: date-time
+                      value:
+                        type: number
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+    SensorData:
+      type: object
+      properties:
+        dataId:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        temperature:
+          type: number
+        light_level:
+          type: number
+        humidity:
+          type: number
+        locationName:
+          type: string

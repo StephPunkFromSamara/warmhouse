@@ -1,0 +1,88 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' == Основные классы ==
+class HttpHandler {
+    - registryService: RegistryService
+    + registerDevice(request: RegisterDeviceRequest): Response
+    + updateDeviceState(request: UpdateStateRequest): Response
+}
+
+class RegistryService {
+    - repository: DeviceRepository
+    - healthChecker: HealthChecker
+    - eventPublisher: EventPublisher
+    + registerDevice(device: Device): void
+    + updateDeviceState(deviceID: string, newState: DeviceState): void
+}
+
+class DeviceRepository {
+    + save(device: Device): void
+    + updateState(deviceID: string, state: DeviceState): void
+    + findById(id: string): Device
+}
+
+class EventPublisher {
+    + publishDeviceRegistered(device: Device): void
+    + publishStateChanged(device: Device): void
+}
+
+class HealthChecker {
+    + validate(device: Device): HealthStatus
+}
+
+' == Вспомогательные классы и enum ==
+class Device {
+    - id: string
+    - type: string
+    - metadata: map
+    - state: DeviceState
+    + getId(): string
+    + getState(): DeviceState
+}
+
+class StateMachine {
+    - id: string
+    - name: string
+    - sysName : string
+
+
+}
+enum State {
+    OFFLINE
+    ONLINE
+    UNKNOWN
+    ERROR
+}
+
+class RegisterDeviceRequest {
+    - type: string
+    - metadata: map
+}
+
+class UpdateStateRequest {
+    - deviceId: string
+    - newState: DeviceState
+}
+
+class HealthStatus {
+    - isHealthy: bool
+    - message: string
+    +updateDeviceState
+}
+
+' == Связи ==
+HttpHandler --> RegistryService
+HttpHandler --> RegisterDeviceRequest
+HttpHandler --> UpdateStateRequest
+RegistryService --> DeviceRepository
+RegistryService --> HealthChecker
+RegistryService --> EventPublisher
+RegistryService --> Device
+HealthChecker --> HealthStatus
+Device --> StateMachine
+StateMachine --> State
+
+
+
+@enduml

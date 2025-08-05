@@ -1,0 +1,105 @@
+@startuml SmartHomeER
+
+' Установим стиль для обозначения PK/FK
+skinparam classAttributeIconSize 0
+
+entity User {
+  *userId : UUID <<PK>>
+  --
+  email : string
+  passwordHash : string
+  name : string
+  externalId:UUID <<FK>>
+  createdAt : datetime
+  timezone : string
+}
+
+entity UserSettings {
+  *userSettingsId : UUID <<PK>>
+  --
+  userId : UUID <<FK>>
+  notificationsEnabled : boolean
+  theme : string
+}
+
+entity Device {
+  *deviceId : UUID <<PK>>
+  --
+  userId : UUID <<FK>>
+  name : string
+  type : string
+  locationId : UUID <<FK>>
+  stateDeviceId : UUID <<FK>>
+  registeredAt : datetime
+}
+
+entity   DeviceType {
+  *deviceTypeId : UUID <<PK>>
+  --
+  name : string
+  sys_name : string
+}
+
+entity SensorData {
+  *dataId : UUID <<PK>>
+  --
+  deviceId : UUID <<FK>>
+  timestamp : datetime
+  temperature : float
+  light_level : float
+  humidity : float
+}
+
+entity Camera {
+  *cameraId : UUID <<PK>>
+  --
+  deviceId : UUID <<FK>>
+  streamUrl : string
+  resolution : string
+}
+
+entity   StateDevice  {
+  *stateDeviceId : UUID <<PK>>
+  --
+  name : string
+  sysName : string
+}
+
+entity Scenario {
+  *scenarioId : UUID <<PK>>
+  --
+  scenarioData : XML
+  stateScenarioId : UUID <<FK>>
+  locationId: UUID <<FK>>
+
+}
+entity   StateScenario  {
+  *stateScenarioId : int <<PK>>
+  --
+  name : string
+  sysName : string
+}
+entity Location {
+  *locationId : UUID <<PK>>
+  --
+  locationName : string
+  address: string
+  isActive : boolean
+}
+
+
+' --- связи ---
+User ||--o{ Device
+User ||--|| UserSettings : Хранение пользовательских настроек
+Device ||--o{ SensorData : Связь данных датчика с датчиком
+Device ||--|| Camera : Объект расширения
+Location ||--o{ Device : Много устройств  в одной локации
+DeviceType||--o| Device : Типы устройств
+Scenario .. Device : Данные о девайса в XML scenarioData
+StateDevice ||--o{Device
+StateScenario ||--o{Scenario
+
+
+
+
+@enduml

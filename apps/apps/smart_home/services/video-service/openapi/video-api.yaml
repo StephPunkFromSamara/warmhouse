@@ -1,0 +1,218 @@
+openapi: 3.1.0
+info:
+  title: Video Streamer API
+  version: 1.0.0
+  description: API для управления камерами, WebRTC стримингом и загрузкой видео
+
+servers:
+  - url: https://video.example.com/api
+    description: Production server
+
+paths:
+  /cameras:
+    get:
+      summary: Список камер
+      parameters:
+        - name: deviceId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Фильтрация по устройству
+      responses:
+        '200':
+          description: Список камер
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Camera'
+        '500':
+          description: Внутренняя ошибка сервера
+
+    post:
+      summary: Создать камеру
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CameraInput'
+      responses:
+        '201':
+          description: Камера создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Camera'
+        '400':
+          description: Ошибка в данных
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /cameras/{cameraId}:
+    get:
+      summary: Получить камеру по ID
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Камера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Camera'
+        '404':
+          description: Камера не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+    put:
+      summary: Обновить камеру
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CameraInput'
+      responses:
+        '200':
+          description: Камера обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Camera'
+        '400':
+          description: Ошибка в данных
+        '404':
+          description: Камера не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+    delete:
+      summary: Удалить камеру
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Камера удалена
+        '404':
+          description: Камера не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /webrtc/stream:
+    get:
+      summary: Запрос WebRTC сессии для выбранной камеры
+      parameters:
+        - name: cameraId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID камеры для стриминга
+      responses:
+        '200':
+          description: Данные WebRTC для установления соединения
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sdpOffer:
+                    type: string
+                  iceCandidates:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Ошибка в параметрах
+        '404':
+          description: Камера не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /upload/video:
+    post:
+      summary: Загрузка видеофайла в файловое хранилище
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Видео файл для загрузки
+                cameraId:
+                  type: string
+                  format: uuid
+                  description: Идентификатор камеры, к которой относится видео
+              required:
+                - file
+                - cameraId
+      responses:
+        '201':
+          description: Видео успешно загружено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videoUrl:
+                    type: string
+                    description: URL загруженного видео
+        '400':
+          description: Ошибка в запросе
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+    Camera:
+      type: object
+      properties:
+        cameraId:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+          format: uuid
+        streamUrl:
+          type: string
+        resolution:
+          type: string
+      required: [cameraId, deviceId, streamUrl, resolution]
+
+    CameraInput:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        streamUrl:
+          type: string
+        resolution:
+          type: string
+      required: [deviceId, streamUrl, resolution]

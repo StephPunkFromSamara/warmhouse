@@ -1,0 +1,216 @@
+openapi: 3.1.0
+info:
+  title: User API
+  version: 1.0.0
+  description: API для управления пользователями и их настройками
+paths:
+  /users:
+    post:
+      summary: Создать пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Некорректный ресурс
+          content:
+            application/json:
+              example:
+                error: "Resource not found"
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              example:
+                error: "Internal server error"
+  /users/{userId}:
+    get:
+      summary: Получить список пользователей
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    put:
+      summary: Обновить список пользователей
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Обновлено
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: "User not found"
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              example:
+                error: "Internal server error"
+    delete:
+      summary: Удалить пользователя
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: "User not found"
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              example:
+                error: "Internal server error"
+
+  /user-settings/{userId}:
+    get:
+      summary: Получить настройки пользователя
+      tags:
+        - User Settings
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Идентификатор пользователя
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешное получение настроек
+          content:
+            application/json:
+              example:
+                notificationsEnabled: true
+                language: ru
+                timezone: Europe/Moscow
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: "userSettings not found"
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              example:
+                error: "Internal server error"
+
+  /users/settings:
+    get:
+      summary: Получить пользователей с настройками (join)
+      responses:
+        '200':
+          description: Совместный список пользователей и настроек
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserWithSettings'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: "User not found"
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              example:
+                error: "Internal server error"
+
+components:
+  schemas:
+    UserCreate:
+      type: object
+      required: [name, email ]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        passwordHash:
+          type: string
+        timeZone:
+          type: string
+        externalID:
+          type: string
+    UserUpdate:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        timeZone:
+          type: string
+        externalID:
+          type: string
+
+    UserSettings:
+      type: object
+      properties:
+        userAccountId:
+            type: string
+        timezone:
+          type: string
+          example: "Europe/Moscow"
+        notificationsEnabled:
+          type: boolean
+          example: true
+          theme:
+            type: string
+      ErrorResponse:
+        type: object
+        properties:
+          error:
+            type: string
+
+    UserWithSettings:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        settings:
+          $ref: '#/components/schemas/UserSetting'

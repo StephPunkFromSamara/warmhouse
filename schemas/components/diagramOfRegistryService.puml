@@ -1,0 +1,33 @@
+@startuml
+!include C4_Component.puml
+
+
+Person(spaDevices, "Device Manager UI")
+    Container(registryService, "Device Registry Service", "Go", "Управление реестром устройств"){
+    Component(api, "HTTP Handler", "net/http + mux", "Обрабатывает HTTP-запросы от UI")
+    Component(healthCheck,"Health Check","GO module","Валидация состояния об устройства")
+    Component(registryOfDevices,"Devices","GO module","Бизнес-логика реестра устройств умного дома")
+    Component(stateMachine,"State Machine","GO module", "Машина состояния")
+    Component(scheduler, "Scheduler", "cron / background", "Планировщик периодических задач")
+    Component(repo, "Device Registry Repository ", "pgx", "Взаимодействие с БД")
+    Component(eventHandler, "Kafka handler", "Shopify/sarama", "Обработчик событий из брокера")
+    }
+    Container(broker, "Message Broker (Kafka)")
+    ContainerDb(deviceDb, "Данные об устройствах и их состояния", "PostgreSQL", "Хранит зарегистрированные устройства")
+    System_Ext(smartEquipments , "Оборудование в доме","Системы сбора и контролеров управления")
+
+    Rel(spaDevices, api, "HTTPS API","JSON")
+    Rel(repo,deviceDb,"Сохранение данных","pgx")
+    Rel(scheduler,healthCheck,"Старт проверки сервисов по расписанию")
+    Rel(healthCheck,smartEquipments,"Валидация состояния","JSON/HTTPS")
+    Rel(healthCheck,stateMachine,"Изменение состояний по результатам healthCheck")
+    Rel(stateMachine,repo,"Данные о состояниях устройств")
+    Rel(stateMachine,eventHandler,"Данные о состояниях устройств")
+    Rel(api,registryOfDevices,"Запрос на регистрацию/изменение данных об устройствах")
+    Rel(eventHandler,broker,"Отправка данных о новых устройствах","JSON/KAFKA PROTOCOL")
+    Rel(api,stateMachine,"Изменение состояние")
+    Rel(registryOfDevices,healthCheck,"Проверка подключаемого устройства")
+    Rel(registryOfDevices,repo,"Отправка данных о новых устройствах или измененных состояниях")
+    Rel(registryOfDevices,eventHandler,"Отправка данных о новых устройствах или измененных состояниях")
+
+@enduml

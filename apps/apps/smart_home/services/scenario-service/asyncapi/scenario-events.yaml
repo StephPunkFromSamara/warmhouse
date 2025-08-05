@@ -1,0 +1,97 @@
+asyncapi: 2.6.0
+info:
+  title: Scenario Engine Events
+  version: 1.0.0
+  description: Подписка на события пользователей, устройств и отправка команд
+
+servers:
+  kafkaBroker:
+    url: kafka.scenario.example.com:9092
+    protocol: kafka
+
+channels:
+  user.events:
+    subscribe:
+      summary: События изменений пользователей
+      message:
+        $ref: '#/components/messages/UserEvent'
+
+  device.events:
+    subscribe:
+      summary: События изменений устройств
+      message:
+        $ref: '#/components/messages/DeviceEvent'
+
+  scenario.commands:
+    publish:
+      summary: Отправка команд из сценария
+      message:
+        $ref: '#/components/messages/ScenarioCommand'
+
+components:
+  messages:
+    UserEvent:
+      name: UserEvent
+      title: Событие пользователя
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          userId:
+            type: string
+            format: uuid
+          eventType:
+            type: string
+            enum: [created, updated, deleted]
+          timestamp:
+            type: string
+            format: date-time
+        required:
+          - userId
+          - eventType
+          - timestamp
+
+    DeviceEvent:
+      name: DeviceEvent
+      title: Событие устройства
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          deviceId:
+            type: string
+            format: uuid
+          eventType:
+            type: string
+            enum: [created, updated, deleted]
+          timestamp:
+            type: string
+            format: date-time
+        required:
+          - deviceId
+          - eventType
+          - timestamp
+
+    ScenarioCommand:
+      name: ScenarioCommand
+      title: Команда из сценария
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          command:
+            type: string
+            description: Команда, например open или close
+            example: open
+          targetId:
+            type: integer
+            description: Целевой номер устройства или параметра (например, 6)
+            example: 6
+          issuedAt:
+            type: string
+            format: date-time
+            description: Время отправки команды
+        required:
+          - command
+          - targetId
+          - issuedAt
