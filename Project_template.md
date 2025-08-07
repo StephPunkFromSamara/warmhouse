@@ -96,23 +96,23 @@
 Здесь приложите ссылки на документацию API для микросервисов, которые вы спроектировали в первой части проектной работы. Для документирования используйте Swagger/OpenAPI или AsyncAPI.
 
 #### Пользователи 
-- [Rest](/apps/apps/smart_home/services/user-service/openapi/user-api.yaml)
-- [Async](/apps/apps/smart_home/services/user-service/asyncapi/user-events.yaml)
+- [Rest](/apps/smart_home/services/user-service/openapi/user-api.yaml)
+- [Async](/apps/smart_home/services/user-service/asyncapi/user-events.yaml)
 ---
 #### Устройства 
-- [Rest](/apps/apps/smart_home/services/device-service/openapi/device-api.yaml)
-- [Async](/apps/apps/smart_home/services/device-service/asyncapi/device-events.yaml)
+- [Rest](/apps/smart_home/services/device-service/openapi/device-api.yaml)
+- [Async](/apps/smart_home/services/device-service/asyncapi/device-events.yaml)
 ---
 - #### Сценарии для устройств
-- [Rest](/apps/apps/smart_home/services/scenario-service/openapi/scenario-api.yaml)
-- [Async](/apps/apps/smart_home/services/scenario-service/asyncapi/scenario-events.yaml)
+- [Rest](/apps/smart_home/services/scenario-service/openapi/scenario-api.yaml)
+- [Async](/apps/smart_home/services/scenario-service/asyncapi/scenario-events.yaml)
 ---
 - #### Мониторинг показателей
-- [Rest](/apps/apps/smart_home/services/monitoring-service/openapi/monitoring-api.yaml)
-- [Async](/apps/apps/smart_home/services/monitoring-service/asyncapi/monitoring-events.yaml)
+- [Rest](/apps/smart_home/services/monitoring-service/openapi/monitoring-api.yaml)
+- [Async](/apps/smart_home/services/monitoring-service/asyncapi/monitoring-events.yaml)
 
 - #### Видео слежение 
-- [Rest](/apps/apps/smart_home/services/video-service/openapi/video-api.yaml)
-- [Async](/apps/apps/smart_home/services/video-service/asyncapi/video-events.yaml)
+- [Rest](/apps/smart_home/services/video-service/openapi/video-api.yaml)
+- [Async](/apps/smart_home/services/video-service/asyncapi/video-events.yaml)
 
 #   ❌ Задание 5. Работа с docker и docker-compose

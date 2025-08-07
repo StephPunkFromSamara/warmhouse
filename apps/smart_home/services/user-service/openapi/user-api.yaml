@@ -3,6 +3,7 @@ info:
   title: User API
   version: 1.0.0
   description: API для управления пользователями и их настройками
+
 paths:
   /users:
     post:
@@ -24,17 +25,28 @@ paths:
           description: Некорректный ресурс
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "Resource not found"
         '500':
           description: Внутренняя ошибка сервера
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "Internal server error"
+
   /users/{userId}:
     get:
       summary: Получить список пользователей
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Успешный ответ
@@ -57,25 +69,30 @@ paths:
       responses:
         '200':
           description: Обновлено
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '404':
           description: Пользователь не найден
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "User not found"
         '500':
           description: Внутренняя ошибка сервера
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "Internal server error"
     delete:
       summary: Удалить пользователя
       parameters:
-        - name: userId
+          name: userId
           in: path
           required: true
           schema:
@@ -87,12 +104,16 @@ paths:
           description: Пользователь не найден
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "User not found"
         '500':
           description: Внутренняя ошибка сервера
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "Internal server error"
 
@@ -102,7 +123,7 @@ paths:
       tags:
         - User Settings
       parameters:
-        - name: userId
+        - userName: userId
           in: path
           required: true
           description: Идентификатор пользователя
@@ -113,22 +134,26 @@ paths:
           description: Успешное получение настроек
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
               example:
                 notificationsEnabled: true
                 language: ru
                 timezone: Europe/Moscow
-              schema:
-                $ref: '#/components/schemas/UserSettings'
         '404':
           description: Пользователь не найден
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "userSettings not found"
         '500':
           description: Внутренняя ошибка сервера
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "Internal server error"
 
@@ -148,24 +173,44 @@ paths:
           description: Пользователь не найден
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "User not found"
         '500':
           description: Внутренняя ошибка сервера
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: "Internal server error"
 
 components:
   schemas:
+    User:
+      type: object
+      properties:
+        userId:
+          type: string
+        userName:
+          type: string
+        email:
+          type: string
+        timeZone:
+          type: string
+        externalID:
+          type: string
+      required:
+        - userId
+        - userName
+        - email
+
     UserCreate:
       type: object
-      required: [name, email ]
+      required: [userName, email]
       properties:
-        id:
-          type: string
-        name:
+        userName:
           type: string
         email:
           type: string
@@ -175,11 +220,12 @@ components:
           type: string
         externalID:
           type: string
+
     UserUpdate:
       type: object
-      required: [name, email]
+      required: [userName, email]
       properties:
-        name:
+        userName:
           type: string
         email:
           type: string
@@ -192,20 +238,15 @@ components:
       type: object
       properties:
         userAccountId:
-            type: string
+          type: string
         timezone:
           type: string
           example: "Europe/Moscow"
         notificationsEnabled:
           type: boolean
           example: true
-          theme:
-            type: string
-      ErrorResponse:
-        type: object
-        properties:
-          error:
-            type: string
+        theme:
+          type: string
 
     UserWithSettings:
       type: object
@@ -213,4 +254,10 @@ components:
         user:
           $ref: '#/components/schemas/User'
         settings:
-          $ref: '#/components/schemas/UserSetting'
+          $ref: '#/components/schemas/UserSettings'
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string

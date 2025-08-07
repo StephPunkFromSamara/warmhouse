@@ -4,10 +4,6 @@ info:
   version: 1.0.0
   description: Подписка на события пользователей, устройств и отправка команд
 
-servers:
-  kafkaBroker:
-    url: kafka.scenario.example.com:9092
-    protocol: kafka
 
 channels:
   user.events:

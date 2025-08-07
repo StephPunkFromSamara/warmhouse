@@ -4,9 +4,6 @@ info:
   version: 1.0.0
   description: API для управления камерами, WebRTC стримингом и загрузкой видео
 
-servers:
-  - url: https://video.example.com/api
-    description: Production server
 
 paths:
   /cameras:

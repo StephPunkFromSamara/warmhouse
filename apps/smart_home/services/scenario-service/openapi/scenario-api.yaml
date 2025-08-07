@@ -46,6 +46,13 @@ paths:
             format: uuid
           description: Фильтр по состоянию сценария
           required: false
+        - name: scenarioName
+          in: query
+          schema:
+            type: string
+            format: string
+            description: Фильтр по наименованию
+          required: false
       responses:
         '200':
           description: Список сценариев
@@ -143,7 +150,9 @@ components:
         locationId:
           type: string
           format: uuid
-      required: [scenarioId, scenarioData, stateScenarioId, locationId]
+        scenarioName:
+          type: string
+      required: [scenarioId, scenarioData, stateScenarioId, locationId,scenarioName]
 
     ScenarioInput:
       type: object

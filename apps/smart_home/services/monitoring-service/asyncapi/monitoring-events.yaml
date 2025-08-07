@@ -1,6 +1,6 @@
 asyncapi: 2.6.0
 info:
-  title: Device Events API
+  title: Monitoring Events API
   version: 1.0.0
   description: События создания, обновления и удаления устройств, подписка на user.events
 
@@ -15,30 +15,31 @@ channels:
       summary: Подписка на события устройств
       message:
         $ref: '#/components/messages/DeviceEvent'
+components:
+  messages:
+    SensorDataMessage:
+      name: SensorDataMessage
+      title: Данные с устройств
+      contentType: application/json
+      payload:
+        type: object
+        properties:$ref: '#/components/schemas/SensorData'
+    DeviceEvent:
+      name: DeviceChangeMessage
+      title: Событие изменения устройства
+      contentType: application/json
+      payload:
+        type: object
+        properties:$ref: '#/components/schemas/Device'
 
-SensorDataMessage:
-  name: SensorDataMessage
-  title: Данные с устройств
-  contentType: application/json
-  payload:
-    $ref: '#/components/schemas/SensorData'
 
-  DeviceEvent:
-    name: DeviceChangeMessage
-    title: Событие изменения устройства
-    contentType: application/json
-    payload:
+  schemas:
+    SensorData:
       type: object
       properties:
-        $ref: '#/components/schemas/Device'
-
-schemas:
-  SensorData:
-    type: object
-    properties:
-      deviceId:
-        type: string
-        format: uuid
+        deviceId:
+          type: string
+          format: uuid
       timestamp:
         type: string
         format: date-time
@@ -48,20 +49,20 @@ schemas:
         type: number
       humidity:
         type: number
-  Device:
-    type: object
-    required: [deviceId, eventType, timestamp]
-    properties:
-      deviceId:
-        type: string
-        format: uuid
-      userId:
-        type: string
-        format: uuid
-      name:
-        type: string
-      type:
-        type: string
+    Device:
+      type: object
+      required: [deviceId, eventType, timestamp]
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
       locationId:
         type: string
         format: uuid

@@ -4,8 +4,6 @@ info:
   version: 1.0.0
   description: API для управления устройствами, типами устройств, состояниями и локациями
 
-servers:
-  - url: https://api.example.com/v1
 
 paths:
 
@@ -81,7 +79,7 @@ paths:
                   $ref: '#/components/schemas/DeviceFull'
         '500':
           description: Внутренняя ошибка сервера
-/device/{deviceId}:
+  /device/{deviceId}:
     put:
       summary: Обновить устройство
       parameters:
@@ -128,7 +126,7 @@ paths:
           description: Внутренняя ошибка сервера
 
   # Location
-/location:
+  /location:
     post:
       summary: Создать локацию
       requestBody:
@@ -146,7 +144,7 @@ paths:
                 $ref: '#/components/schemas/Location'
         '500':
           description: Внутренняя ошибка сервера
-/locations:
+  /locations:
     get:
       summary: Получить список локаций
       parameters:
@@ -174,7 +172,7 @@ paths:
                   $ref: '#/components/schemas/Location'
         '500':
           description: Внутренняя ошибка сервера
-/location/{locationId}:
+  /location/{locationId}:
     put:
       summary: Обновить локацию
       parameters:

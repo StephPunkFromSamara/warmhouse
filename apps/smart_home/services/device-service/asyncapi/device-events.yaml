@@ -4,12 +4,6 @@ info:
   version: 1.0.0
   description: События создания, обновления и удаления устройств и камер, подписка на user.events
 
-servers:
-  production:
-    url:
-    protocol:
-    security:
-      - userPwd: []
 
 channels:
 
@@ -19,10 +13,6 @@ channels:
       summary: Публикация событий по устройствам
       message:
         $ref: '#/components/messages/DeviceEvent'
-    parameters: {}
-    bindings:
-      mqtt:
-        topic: device/events
 
   camera.events:
     description: Топик с событиями по камерам
@@ -30,10 +20,7 @@ channels:
       summary: Публикация событий по камерам
       message:
         $ref: '#/components/messages/CameraEvent'
-    parameters: {}
-    bindings:
-      mqtt:
-        topic: camera/events
+
 
   users.events:
     description: Подписка на события пользователей
@@ -41,9 +28,7 @@ channels:
       summary: Подписка на события пользователей
       message:
         $ref: '#/components/messages/UserEvent'
-    bindings:
-      mqtt:
-        topic: users/events
+
 
 components:
   messages:
