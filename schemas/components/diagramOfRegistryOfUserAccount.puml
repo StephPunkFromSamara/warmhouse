@@ -1,0 +1,30 @@
+@startuml
+!include C4_Component.puml
+
+Person(spaUser, "Device Manager UI")
+Container(registryUserAccount, "User Accounts", "GO", "Авторизует и хранит данных об аккаунте") {
+Component(api, "HTTP Handler", "net/http + mux", "Обрабатывает HTTP-запросы от UI")
+Component(auth, "AuthService", "GO module", "Авторизация пользователей")
+Component(userAccount, "User Account Service", "GO module", "Управление учетными записями")
+Component(repo, "User Account Repository ", "pgx", "Взаимодействие с БД")
+Component(userSettingsService,"User Settings Service", "Сохранение пользовательских настроек")
+Component(eventHandler, "Kafka handler", "Shopify/sarama", "Обработчик событий из брокера")
+}
+ContainerDb(userAccountDB, "Данные пользователя", "PostgreSQL", "Хранит об учетных записях")
+Container(broker, "Message Broker (Kafka)")
+
+Rel(spaUser, api, "HTTPS API","JSON")
+Rel(eventHandler,broker, "Kafka Protocol","JSON")
+Rel(api,userAccount,"Управление учетной записью")
+Rel(api,auth,"Авторизация пользователей")
+Rel(auth,repo,"Проверка данных пользователя")
+Rel(userAccount,userSettingsService,"Создание пользовательских настроек")
+Rel(api,userSettingsService,"Изменение настроек пользователя")
+Rel(userSettingsService,repo,"Обновление данных после валидации")
+Rel(userAccount,eventHandler,"Отправка данных о пользователе","<<async>>")
+Rel(userAccount,repo, "Сохранение данных учетных записей")
+Rel(repo, userAccountDB, "PGX/SQL")
+
+
+@enduml
+

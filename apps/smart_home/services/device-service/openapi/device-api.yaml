@@ -1,0 +1,425 @@
+openapi: 3.1.0
+info:
+  title: Device Management API
+  version: 1.0.0
+  description: API для управления устройствами, типами устройств, состояниями и локациями
+
+
+paths:
+
+  # Device
+  /device:
+    post:
+      summary: Создать устройство
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCreate'
+      responses:
+        '200':
+          description: Устройство создано успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Не найдено связанное значение (например, Location, DeviceState)
+        '500':
+          description: Внутренняя ошибка сервера
+    get:
+      summary: Получить список устройств с расширенной информацией
+      parameters:
+        - name: userId
+          in: query
+          description: Фильтрация по userId
+          required: false
+          schema:
+            type: string
+            format: uuid
+
+        - name: locationId
+          in: query
+          description: Фильтрация по locationId
+          required: false
+          schema:
+            type: string
+            format: uuid
+
+        - name: stateDeviceId
+          in: query
+          description: Фильтрация по состоянию устройства
+          required: false
+          schema:
+            type: string
+            format: uuid
+
+        - name: deviceType
+          in: query
+          description: Фильтрация по типу устройства (текст)
+          required: false
+          schema:
+            type: string
+
+        - name: name
+          in: query
+          description: Поиск по названию устройства (частичное совпадение)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список устройств с типами, состояниями и локациями
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceFull'
+        '500':
+          description: Внутренняя ошибка сервера
+  /device/{deviceId}:
+    put:
+      summary: Обновить устройство
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID устройства для перезаписи
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceUpdate'
+      responses:
+        '200':
+          description: Устройство обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Устройство не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+    delete:
+      summary: Удалить устройство
+      parameters:
+        - in: path
+          name: deviceId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID устройства для удаления
+      responses:
+        '200':
+          description: Устройство удалено
+        '404':
+          description: Устройство не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+
+  # Location
+  /location:
+    post:
+      summary: Создать локацию
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreate'
+      responses:
+        '200':
+          description: Локация создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '500':
+          description: Внутренняя ошибка сервера
+  /locations:
+    get:
+      summary: Получить список локаций
+      parameters:
+        - name: isActive
+          in: query
+          description: Фильтрация по активности
+          required: false
+          schema:
+            type: boolean
+
+        - name: locationName
+          in: query
+          description: Поиск по названию локации
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список локаций
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+        '500':
+          description: Внутренняя ошибка сервера
+  /location/{locationId}:
+    put:
+      summary: Обновить локацию
+      parameters:
+        - in: path
+          name: locationId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID локации  для обновления
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdate'
+      responses:
+        '200':
+          description: Локация обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          description: Локация не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+
+    delete:
+      summary: Удалить локацию
+      parameters:
+        - in: query
+          name: locationId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID локации для удаления
+      responses:
+        '200':
+          description: Локация удалена
+        '404':
+          description: Локация не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
+  # DeviceType
+  /deviceType:
+    get:
+      summary: Получить список типов устройств
+      responses:
+        '200':
+          description: Список типов устройств
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceType'
+        '500':
+          description: Внутренняя ошибка сервера
+
+  # DeviceState
+  /deviceState:
+    get:
+      summary: Получить список состояний устройств
+      responses:
+        '200':
+          description: Список состояний устройств
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceState'
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+
+    Device:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        locationId:
+          type: string
+          format: uuid
+        stateDeviceId:
+          type: string
+          format: uuid
+        registeredAt:
+          type: string
+          format: date-time
+      required:
+        - deviceId
+        - userId
+        - name
+        - type
+        - locationId
+        - stateDeviceId
+        - registeredAt
+
+    DeviceCreate:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        locationId:
+          type: string
+          format: uuid
+        stateDeviceId:
+          type: string
+          format: uuid
+      required:
+        - userId
+        - name
+        - type
+        - locationId
+        - stateDeviceId
+
+    DeviceUpdate:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        locationId:
+          type: string
+          format: uuid
+        stateDeviceId:
+          type: string
+          format: uuid
+      required:
+        - deviceId
+
+    DeviceFull:
+      allOf:
+        - $ref: '#/components/schemas/Device'
+        - type: object
+          properties:
+            deviceTypeList:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeviceType'
+            deviceStateList:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeviceState'
+            location:
+              $ref: '#/components/schemas/Location'
+
+    DeviceType:
+      type: object
+      properties:
+        deviceTypeId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sys_name:
+          type: string
+      required:
+        - deviceTypeId
+        - name
+        - sys_name
+
+    DeviceState:
+      type: object
+      properties:
+        stateDeviceId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sysName:
+          type: string
+      required:
+        - stateDeviceId
+        - name
+        - sysName
+
+    Location:
+      type: object
+      properties:
+        locationId:
+          type: string
+          format: uuid
+        locationName:
+          type: string
+        address:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - locationId
+        - locationName
+        - address
+        - isActive
+
+    LocationCreate:
+      type: object
+      properties:
+        locationName:
+          type: string
+        address:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - locationName
+        - address
+        - isActive
+
+    LocationUpdate:
+      type: object
+      properties:
+        locationId:
+          type: string
+          format: uuid
+        locationName:
+          type: string
+        address:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - locationId

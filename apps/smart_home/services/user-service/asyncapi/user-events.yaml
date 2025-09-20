@@ -1,0 +1,100 @@
+asyncapi: 2.6.0
+info:
+  title: User Events
+  version: 1.0.0
+  description: |
+    Асинхронные события, публикуемые в Kafka топик `users.events`.
+
+channels:
+  users.events:
+    description: Топик для всех событий, связанных с пользователями
+    publish:
+      summary: Публикация событий пользователей
+      message:
+        oneOf:
+          - $ref: '#/components/messages/UserCreated'
+          - $ref: '#/components/messages/UserUpdated'
+          - $ref: '#/components/messages/UserDeleted'
+
+components:
+  messages:
+    UserCreated:
+      name: UserCreated
+      title: Событие создания пользователя
+      contentType: application/json
+      headers:
+        type: object
+        properties:
+          eventType:
+            type: string
+            enum: [UserCreated]
+        required:
+          - eventType
+      payload:
+        type: object
+        required:
+          - type
+          - userId
+          - username
+        properties:
+          type:
+            type: string
+            enum: [UserCreated]
+          userId:
+            type: string
+            format: uuid
+          username:
+            type: string
+          email:
+            type: string
+
+    UserUpdated:
+      name: UserUpdated
+      title: Событие обновления пользователя
+      contentType: application/json
+      headers:
+        type: object
+        properties:
+          eventType:
+            type: string
+            enum: [UserUpdated]
+        required:
+          - eventType
+      payload:
+        type: object
+        required:
+          - type
+          - userId
+          - username
+        properties:
+          type:
+            type: string
+            enum: [UserUpdated]
+          userId:
+            type: string
+            format: uuid
+          username:
+            type: string
+          email:
+            type: string
+
+    UserDeleted:
+      name: UserDeleted
+      title: Событие удаления пользователя
+      contentType: application/json
+      headers:
+        type: object
+        properties:
+          eventType:
+            type: string
+            enum: [UserDeleted]
+        required:
+          - eventType
+      payload:
+        type: object
+        required:
+          - userId
+        properties:
+          userId:
+            type: string
+            format: uuid

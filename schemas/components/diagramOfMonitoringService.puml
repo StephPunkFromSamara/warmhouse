@@ -1,0 +1,28 @@
+@startuml
+!include C4_Component.puml
+
+Person(spaDashboard, "Dashboard UI")
+Container(monitoringService, "Monitoring", "GO", "Мониторинг показателей") {
+Component(api, "HTTP Handler", "net/http + mux", "Обрабатывает HTTP-запросы от UI")
+Component(processingMetricData, "Processing MetricData", "GO module", "Обработка и валидация данных")
+Component(formerDataSet, "Former Data Set", "GO module", "Формирование агрегатов/отчетов для UI")
+Component(repo, "MetricsRepository", "pgx", "Хранение и агрегация данных")
+Component(eventHandler, "Kafka handler", "Shopify/sarama", "Обработчик событий из брокера")
+Component(sensorService,"Sensor Service","GO module","Создание/удаление датчиков и обновление их метаданных")
+}
+ContainerDb(metricsDb, "Metrics DB", "PostgreSQL+TimeScaleDB", "Хранение и агрегация данных")
+Container(broker, "Message Broker (Kafka)")
+
+Rel(spaDashboard, api, "HTTPS API","JSON")
+Rel(eventHandler,sensorService,"Получение сведений о датчиках")
+Rel(broker,eventHandler, "Kafka Protocol","JSON")
+Rel(api,processingMetricData,"Трансляция данных в real-time", "<<async>>")
+Rel(api, formerDataSet, "Запрос на формирование DataSet")
+Rel(eventHandler,processingMetricData, "Подписка на данные о метриках и новых устройствах","<<async>>")
+Rel(processingMetricData,repo, "Сохранение данных в TimeScale DB")
+Rel(sensorService,repo, "Чтение/запись/ удаление данных о датчиках")
+Rel(formerDataSet,repo, "Экстракция данных по формированному запросу")
+Rel(repo, metricsDb, "PGX/SQL")
+
+
+@enduml

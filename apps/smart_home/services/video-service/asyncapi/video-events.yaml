@@ -1,0 +1,42 @@
+asyncapi: 2.6.0
+info:
+  title: Video Streamer Events
+  version: 1.0.0
+  description: События добавления новых камер
+
+servers:
+  kafkaBroker:
+    url: kafka.video.example.com:9092
+    protocol: kafka
+
+channels:
+  camera.new:
+    subscribe:
+      summary: Подписка на события добавления новых камер
+      message:
+        $ref: '#/components/messages/NewCameraMessage'
+
+components:
+  messages:
+    NewCameraMessage:
+      name: NewCameraMessage
+      title: Новая камера
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/Camera'
+
+  schemas:
+    Camera:
+      type: object
+      properties:
+        cameraId:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+          format: uuid
+        streamUrl:
+          type: string
+        resolution:
+          type: string
+      required: [cameraId, deviceId, streamUrl, resolution]

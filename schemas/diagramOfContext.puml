@@ -1,0 +1,9 @@
+@startuml
+!include C4_Context.puml
+
+Person(user, "Person", "Житель коттеджа получающий услугу умного управления")
+System(smartHome, "Упраление умным домом", "Позволяет управлять отоплением и мониторить показатели температуры")
+System_Ext(smartEquipments , "Оборудование в доме","Системы сбора и контролеров упраления")
+Rel(user,smartHome, "Использование системы")
+Rel(smartHome,smartEquipments, "Мониторинг и управление","REST API:JSON Format")
+ @enduml

@@ -1,0 +1,169 @@
+openapi: 3.1.0
+info:
+  title: Scenario Engine API
+  version: 1.0.0
+  description: CRUD API для управления сценариями
+servers:
+  - url: https://scenario.example.com/api
+    description: Production server
+
+paths:
+  /scenario:
+    post:
+      summary: Создать новый сценарий
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioInput'
+      responses:
+        '201':
+          description: Сценарий создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+        '400':
+          description: Неверные данные
+        '500':
+          description: Внутренняя ошибка сервера
+
+    get:
+      summary: Получить список сценариев (с фильтрацией)
+      parameters:
+        - name: locationId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Фильтр по locationId
+          required: false
+        - name: stateScenarioId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Фильтр по состоянию сценария
+          required: false
+        - name: scenarioName
+          in: query
+          schema:
+            type: string
+            format: string
+            description: Фильтр по наименованию
+          required: false
+      responses:
+        '200':
+          description: Список сценариев
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Scenario'
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /scenario/{scenarioId}:
+    get:
+      summary: Получить сценарий по ID
+      parameters:
+        - name: scenarioId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Информация о сценарии
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+        '404':
+          description: Сценарий не найден
+        '500':
+          description: Внутренняя ошибка сервера
+
+    put:
+      summary: Обновить сценарий по ID
+      parameters:
+        - name: scenarioId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioInput'
+      responses:
+        '200':
+          description: Сценарий обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+        '404':
+          description: Сценарий не найден
+        '400':
+          description: Неверные данные
+        '500':
+          description: Внутренняя ошибка сервера
+
+    delete:
+      summary: Удалить сценарий по ID
+      parameters:
+        - name: scenarioId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Сценарий удален
+        '404':
+          description: Сценарий не найден
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+    Scenario:
+      type: object
+      properties:
+        scenarioId:
+          type: string
+          format: uuid
+        scenarioData:
+          type: string
+          description: XML структура сценария
+        stateScenarioId:
+          type: string
+          format: uuid
+        locationId:
+          type: string
+          format: uuid
+        scenarioName:
+          type: string
+      required: [scenarioId, scenarioData, stateScenarioId, locationId,scenarioName]
+
+    ScenarioInput:
+      type: object
+      properties:
+        scenarioData:
+          type: string
+          description: XML структура сценария
+        stateScenarioId:
+          type: string
+          format: uuid
+        locationId:
+          type: string
+          format: uuid
+      required: [scenarioData, stateScenarioId, locationId]

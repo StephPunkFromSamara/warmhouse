@@ -1,0 +1,31 @@
+@startuml
+!include C4_Component.puml
+
+    Person(spaVideo, "Video Viewer UI")
+    Container(videoService, "Video Streamer", "GO module", "Трансляция видео") {
+    Component(streamingApi, "WebRTC handler", "GO module", "Обрабатывает WebRTC-запросы от UI")
+    Component(packetProcessor , "Packet Processor", "GO module/Pion", "Обработчик сырых пакетов с устройства")
+    Component(saverVideo, "SaverVideo", "GO module", "Формирование пакетов для сохранение в File Storage")
+    Component(eventHandler, "Kafka handler", "Shopify/sarama", "Обработчик событий из брокера")
+    Component(cameraService,"Camera Service", "Создание/удаление камер и обновление их метаданных" )
+    Component("cameraVideoRepo", "VideoMetaRepository", "pgx", "Хранение и агрегация данных")
+    }
+    ContainerDb(videoMetaDB, "Video MetaData", "PostgreSQL", "Хранение и агрегация данных")
+    Container(fileStorage, "S3-compatible video storage", "GO", "Постоянное хранилище видеофайлов")
+    Container(broker, "Message Broker (Kafka)")
+    System_Ext(camera,"Источник данны","RTSP")
+
+    Rel(saverVideo,cameraVideoRepo, "Запись метаданных видео и ссылок на файлы")
+    Rel(packetProcessor,streamingApi,"Проброс обработанных пакетов видео В UI")
+    Rel(packetProcessor,saverVideo,"Отправка пакетов для сохранения")
+    Rel(camera, packetProcessor,"Контроль и обработка стримминга", [JSON/REST API])
+    Rel(spaVideo,streamingApi,"Стриминг обработанных данных","WebRTC","WebRTC")
+    Rel(saverVideo,fileStorage,"Сохранение файлов","HTTPS/multiPart")
+    Rel(broker,eventHandler,"Данные о новых камерах и поток данных с пакетами видео", "JSON/ Kafka Protocol")
+    Rel(eventHandler,cameraService, "Команда на управление камерой")
+    Rel(cameraService,cameraVideoRepo, "Чтение/Запись/обновление данных о камерах")
+    Rel(packetProcessor,cameraService, "Чтение метаданных о камерах")
+    Rel(cameraVideoRepo,videoMetaDB, "Запись метаданных", "PGX" )
+
+
+@enduml

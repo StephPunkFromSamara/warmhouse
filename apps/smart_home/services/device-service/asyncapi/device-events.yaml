@@ -1,0 +1,161 @@
+asyncapi: 2.6.0
+info:
+  title: Device and Camera Events API
+  version: 1.0.0
+  description: События создания, обновления и удаления устройств и камер, подписка на user.events
+
+
+channels:
+
+  device.events:
+    description: Топик с событиями по устройствам
+    publish:
+      summary: Публикация событий по устройствам
+      message:
+        $ref: '#/components/messages/DeviceEvent'
+
+  camera.events:
+    description: Топик с событиями по камерам
+    publish:
+      summary: Публикация событий по камерам
+      message:
+        $ref: '#/components/messages/CameraEvent'
+
+
+  users.events:
+    description: Подписка на события пользователей
+    subscribe:
+      summary: Подписка на события пользователей
+      message:
+        $ref: '#/components/messages/UserEvent'
+
+
+components:
+  messages:
+    DeviceEvent:
+      name: deviceEvent
+      title: Событие устройства
+      summary: События создания, изменения и удаления устройства
+      payload:
+        type: object
+        properties:
+          eventType:
+            type: string
+            enum:
+              - device.created
+              - device.updated
+              - device.deleted
+          device:
+            $ref: '#/components/schemas/Device'
+        required:
+          - eventType
+          - device
+      headers:
+        type: object
+        properties:
+          eventType:
+            type: string
+            description: Тип события (device.created|device.updated|device.deleted)
+        required:
+          - eventType
+
+    CameraEvent:
+      name: cameraEvent
+      title: Событие камеры
+      summary: События создания, изменения и удаления камеры
+      payload:
+        type: object
+        properties:
+          eventType:
+            type: string
+            enum:
+              - camera.created
+              - camera.updated
+              - camera.deleted
+          camera:
+            $ref: '#/components/schemas/Camera'
+        required:
+          - eventType
+          - camera
+      headers:
+        type: object
+        properties:
+          eventType:
+            type: string
+            description: Тип события (camera.created|camera.updated|camera.deleted)
+        required:
+          - eventType
+
+    UserEvent:
+      name: userEvent
+      title: Событие пользователя
+      summary: События пользователей (подписка)
+      headers:
+        type: object
+        properties:
+          eventType:
+            type: string
+            description: Тип события (user.created|user.updated|user.deleted)
+      payload:
+        type: object
+        properties:
+          userId:
+            type: string
+            format: uuid
+          details:
+            type: object
+            description: Дополнительные данные
+        required:
+          - userId
+          - eventType
+
+  schemas:
+    Device:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        locationId:
+          type: string
+          format: uuid
+        stateDeviceId:
+          type: string
+          format: uuid
+        registeredAt:
+          type: string
+          format: date-time
+      required:
+        - deviceId
+        - userId
+        - name
+        - type
+        - locationId
+        - stateDeviceId
+        - registeredAt
+
+    Camera:
+      type: object
+      properties:
+        cameraId:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+          format: uuid
+        streamUrl:
+          type: string
+        resolution:
+          type: string
+      required:
+        - cameraId
+        - deviceId
+        - streamUrl
+        - resolution

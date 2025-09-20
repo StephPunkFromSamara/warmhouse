@@ -1,0 +1,30 @@
+@startuml
+!include C4_Component.puml
+
+Person(spaScenarios, "Scenario Editor UI")
+Container(scenario, "Scenario Engine", "Go", "Обработка пользовательских сценариев"){
+Component(api, "HTTP Handler", "net/http + mux", "Обрабатывает HTTP-запросы от UI")
+Component(processingScenario, "ProcessingScenario", "Go module", "Оркестратор бизнес логики")
+Component(parser, "Scenario Parser", "Go module", "Парсит сценарии в структуру")
+Component(executor, "Scenario Executor", "Go module", "Запускает команды по сценарию")
+Component(scheduler, "Scheduler", "cron / background", "Планировщик периодических задач")
+Component(repo, "Scenario Repository", "pgx", "Работает с БД сценариев")
+Component(eventHandler, "Kafka handler", "Shopify/sarama", "Обработчик событий из брокера")
+}
+ContainerDb(scenariosDb, "Scenario DB", "PostgreSQL", "Хранение сценариев")
+Container(broker, "Message Broker (Kafka)")
+
+Rel(spaScenarios, api, "HTTPS API","JSON")
+Rel(eventHandler,broker, "Kafka Protocol","JSON")
+Rel(processingScenario, parser, "Валидация входных данных")
+Rel(api, processingScenario, "Входные данные для обработки")
+Rel(processingScenario,scheduler, "Задание расписания")
+Rel(executor,eventHandler, "Подписка на данные о состоянии устройств/Отправка команд на выполнение","<<async>>")
+Rel(processingScenario,eventHandler, "Подписка на данные о пользователе","<<async>>")
+Rel(processingScenario,repo, "Сохранение сценария")
+Rel(processingScenario, executor, "Передаёт готовую структуру")
+Rel(executor, repo, "Чтение/запись  сценария")
+Rel(repo, scenariosDb, "PGX/SQL")
+Rel(scheduler, executor, "Запускает выполнение по расписанию")
+
+@enduml
